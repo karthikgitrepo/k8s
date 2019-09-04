@@ -1,0 +1,274 @@
+admatic@admatic-00:~$ cat simplerc.yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginxrc
+spec:
+  replicas: 2
+  selector:
+    project: admaticiot
+    version: "0.1"
+  template:
+    metadata:
+      name: nginx
+      labels:
+        project: admaticiot
+        version: "0.1"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS             RESTARTS   AGE
+admaticcos    2/2     Running            0          2h
+admatictemp   1/2     ImagePullBackOff   0          1h
+kubia-b7b8v   1/1     Running            0          1h
+kubia-ck4gv   1/1     Running            0          1h
+kubia-z94zx   1/1     Running            0          1h
+admatic@admatic-00:~$
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS             RESTARTS   AGE
+admaticcos    2/2     Running            0          2h
+admatictemp   1/2     ImagePullBackOff   0          1h
+kubia-b7b8v   1/1     Running            0          1h
+kubia-ck4gv   1/1     Running            0          1h
+kubia-z94zx   1/1     Running            0          1h
+admatic@admatic-00:~$ kubectl create -f simplerc.yaml
+replicationcontroller/nginxrc created
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          1h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-954hs   1/1     Running            0          18s
+nginxrc-vkx8l   1/1     Running            0          18s
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          1h
+apiVersion: v1
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-954hs   1/1     Running            0          1m
+nginxrc-vkx8l   1/1     Running            0          1m
+admatic@admatic-00:~$ kubectl get rc
+NAME      DESIRED   CURRENT   READY   AGE
+nginxrc   2         2         2       1m
+admatic@admatic-00:~$ kubectl get rc
+NAME      DESIRED   CURRENT   READY   AGE
+nginxrc   2         2         2       2m
+admatic@admatic-00:~$ kubectl create -f simplerc.yaml
+Error from server (AlreadyExists): error when creating "simplerc.yaml": replicationcontrollers "nginxrc" already exists
+admatic@admatic-00:~$ kubectl get rc
+NAME      DESIRED   CURRENT   READY   AGE
+nginxrc   2         2         2       4m
+admatic@admatic-00:~$ kubectl delete pod nginxrc-954hs
+pod "nginxrc-954hs" deleted
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS         RESTARTS   AGE
+admaticcos      2/2     Running        0          2h
+admatictemp     1/2     ErrImagePull   0          1h
+kubia-b7b8v     1/1     Running        0          1h
+kubia-ck4gv     1/1     Running        0          1h
+kubia-z94zx     1/1     Running        0          1h
+nginxrc-9c8hq   1/1     Running        0          6s
+nginxrc-vkx8l   1/1     Running        0          4m
+admatic@admatic-00:~$ kubectl delete pod nginxrc-vkx8l
+pod "nginxrc-vkx8l" deleted
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$ vi rc_testpod.yaml
+admatic@admatic-00:~$ cat rc_testpod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rakuten-nginx
+  labels:
+    project: admaticiot
+    track: webapp
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+    version: "0.1"
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-9c8hq   1/1     Running            0          13m
+nginxrc-hp9qk   1/1     Running            0          11m
+admatic@admatic-00:~$ kubectl create -f rc_testpod.yaml
+pod/rakuten-nginx created
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-9c8hq   1/1     Running            0          13m
+nginxrc-hp9qk   1/1     Running            0          12m
+rakuten-nginx   0/1     Terminating        0          3s
+admatic@admatic-00:~$ kubectl edit rc nginxrc
+Edit cancelled, no changes made.
+admatic@admatic-00:~$ kubectl edit rc nginxrc
+replicationcontroller/nginxrc edited
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-9c8hq   1/1     Running            0          14m
+nginxrc-hp9qk   1/1     Running            0          13m
+nginxrc-nzwsv   1/1     Running            0          4s
+nginxrc-zl5v5   1/1     Running            0          4s
+apiVersion: v1
+admatic@admatic-00:~$ kubectl create -f rc_testpod.yaml
+pod/rakuten-nginx created
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-9c8hq   1/1     Running            0          14m
+nginxrc-hp9qk   1/1     Running            0          13m
+nginxrc-nzwsv   1/1     Running            0          25s
+nginxrc-zl5v5   1/1     Running            0          25s
+rakuten-nginx   0/1     Terminating        0          4s
+admatic@admatic-00:~$ cat rc_testpod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rakuten-nginx
+  labels:
+    project: admaticiot
+    track: webapp
+    version: "0.1"
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+
+admatic@admatic-00:~$ cp rc_testpod.yaml rc_testpod_random.yaml
+admatic@admatic-00:~$ vi rc_testpod_random.yaml
+admatic@admatic-00:~$ cat pods
+cat: pods: No such file or directory
+admatic@admatic-00:~$ cat rc_testpod_random.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rakuten-nginx
+  labels:
+    project: admaticiot
+    track: webapp
+    version: "0.2"
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+
+admatic@admatic-00:~$ kubectl  create -f rc_testpod_random.yaml
+pod/rakuten-nginx created
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-9c8hq   1/1     Running            0          16m
+nginxrc-hp9qk   1/1     Running            0          14m
+nginxrc-nzwsv   1/1     Running            0          1m
+nginxrc-zl5v5   1/1     Running            0          1m
+rakuten-nginx   1/1     Running            0          5s
+admatic@admatic-00:~$
+
+
+admatic@admatic-00:~$ kubectl get rc
+NAME      DESIRED   CURRENT   READY   AGE
+nginxrc   4         4         4       24m
+admatic@admatic-00:~$ kubectl delete rc nginxrc
+replicationcontroller "nginxrc" deleted
+admatic@admatic-00:~$ kubectl get rc
+No resources found.
+admatic@admatic-00:~$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+rakuten-nginx   1/1     Running            0          4m
+
+
+
+
+admatic@admatic-00:~$ vi simplerc.yaml
+admatic@admatic-00:~$ kubectl  create -f simplerc.yaml
+replicationcontroller/nginxrc created
+admatic@admatic-00:~$ cat simplerc.yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginxrc
+spec:
+  replicas: 1
+  selector:
+    project: admaticiot
+    version: "0.1"
+  template:
+    metadata:
+      name: nginx
+      labels:
+        project: admaticiot
+        version: "0.1"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+admatic@admatic-00:~$ kubectl get rc
+NAME      DESIRED   CURRENT   READY   AGE
+nginxrc   1         1         1       10s
+admatic@admatic-00:~$ kubectl  get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-kgssp   1/1     Running            0          35s
+rakuten-nginx   1/1     Running            0          7m
+admatic@admatic-00:~$ kubectl delete pod nginxrc-kgssp
+pod "nginxrc-kgssp" deleted
+admatic@admatic-00:~$ kubectl  get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          1h
+kubia-ck4gv     1/1     Running            0          1h
+kubia-z94zx     1/1     Running            0          1h
+nginxrc-vvcwq   1/1     Running            0          57s
+rakuten-nginx   1/1     Running            0          8m
+admatic@admatic-00:~$

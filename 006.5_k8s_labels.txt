@@ -1,0 +1,64 @@
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: labelex
+  labels:
+    env: development
+spec:
+  containers:
+  - name: sise
+    image: mhausenblas/simpleservice:0.5.0
+    ports:
+    - containerPort: 9876
+    
+
+
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl create -f https://raw.githubusercontent.com/mhausenblas/kbe/master/specs/labels/pod.yaml
+
+pod/labelex created
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          2h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Running            0          2h
+kubia-ck4gv     1/1     Running            0          2h
+kubia-z94zx     1/1     Running            0          2h
+labelex         1/1     Running            0          8s
+nginxrc-vvcwq   1/1     Running            0          24m
+rakuten-nginx   1/1     Running            0          31m
+admatic@admatic-00:~/labels$ kubectl get pods --show-labels
+NAME            READY   STATUS             RESTARTS   AGE   LABELS
+admaticcos      2/2     Running            0          2h    <none>
+admatictemp     1/2     ImagePullBackOff   0          2h    <none>
+kubia-b7b8v     1/1     Running            0          2h    app=kubia
+kubia-ck4gv     1/1     Running            0          2h    app=kubia
+kubia-z94zx     1/1     Running            0          2h    app=kubia
+labelex         1/1     Running            0          21s   env=development
+nginxrc-vvcwq   1/1     Running            0          24m   project=admaticiot,version=0.1
+rakuten-nginx   1/1     Running            0          32m   project=admaticiot,track=webapp,version=0.2
+admatic@admatic-00:~/labels$ kubectl label pods labelex owner=admatic
+pod/labelex labeled
+admatic@admatic-00:~/labels$ kubectl get pods --show-labels
+NAME            READY   STATUS             RESTARTS   AGE   LABELS
+admaticcos      2/2     Running            0          2h    <none>
+admatictemp     1/2     ImagePullBackOff   0          2h    <none>
+kubia-b7b8v     1/1     Running            0          2h    app=kubia
+kubia-ck4gv     1/1     Running            0          2h    app=kubia
+kubia-z94zx     1/1     Running            0          2h    app=kubia
+labelex         1/1     Running            0          1m    env=development,owner=admatic
+nginxrc-vvcwq   1/1     Running            0          24m   project=admaticiot,version=0.1
+rakuten-nginx   1/1     Running            0          32m   project=admaticiot,track=webapp,version=0.2
+admatic@admatic-00:~/labels$ kubectl get pods --selector owner=admatic
+NAME      READY   STATUS    RESTARTS   AGE
+labelex   1/1     Running   0          1m
+admatic@admatic-00:~/labels$ kubectl get pods -l 'env in (production, development)'
+NAME      READY   STATUS    RESTARTS   AGE
+labelex   1/1     Running   0          2m
+admatic@admatic-00:~/labels$
+
+

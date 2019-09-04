@@ -1,0 +1,157 @@
+admatic@admatic-00:~/labels$ kubectl get nodes
+NAME                                             STATUS   ROLES    AGE   VERSION
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   4h    v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   4h    v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   4h    v1.10.9-gke.5
+admatic@admatic-00:~/labels$ kubectl label nodes gke-admatic-cluster-default-pool-8e1d0a98-8bdr disktype=ssd
+
+node/gke-admatic-cluster-default-pool-8e1d0a98-8bdr labeled
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl get nodes
+NAME                                             STATUS   ROLES    AGE   VERSION
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   4h    v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   4h    v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   4h    v1.10.9-gke.5
+admatic@admatic-00:~/labels$ kubectl get nodes --show-labels
+NAME                                             STATUS   ROLES    AGE   VERSION         LABELS
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   4h    v1.10.9-gke.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/fluentd-ds-ready=true,beta.kubernetes.io/instance-type=n1-standard-1,beta.kubernetes.io/os=linux,cloud.google.com/gke-nodepool=default-pool,cloud.google.com/gke-os-distribution=cos,failure-domain.beta.kubernetes.io/region=us-east1,failure-domain.beta.kubernetes.io/zone=us-east1-b,kubernetes.io/hostname=gke-admatic-cluster-default-pool-8e1d0a98-3nkd
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   4h    v1.10.9-gke.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/fluentd-ds-ready=true,beta.kubernetes.io/instance-type=n1-standard-1,beta.kubernetes.io/os=linux,cloud.google.com/gke-nodepool=default-pool,cloud.google.com/gke-os-distribution=cos,disktype=ssd,failure-domain.beta.kubernetes.io/region=us-east1,failure-domain.beta.kubernetes.io/zone=us-east1-b,kubernetes.io/hostname=gke-admatic-cluster-default-pool-8e1d0a98-8bdr
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   4h    v1.10.9-gke.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/fluentd-ds-ready=true,beta.kubernetes.io/instance-type=n1-standard-1,beta.kubernetes.io/os=linux,cloud.google.com/gke-nodepool=default-pool,cloud.google.com/gke-os-distribution=cos,failure-domain.beta.kubernetes.io/region=us-east1,failure-domain.beta.kubernetes.io/zone=us-east1-b,kubernetes.io/hostname=gke-admatic-cluster-default-pool-8e1d0a98-wk9j
+admatic@admatic-00:~/labels$ kubectl label nodes gke-admatic-cluster-default-pool-8e1d0a98-wk9j location=sg
+node/gke-admatic-cluster-default-pool-8e1d0a98-wk9j labeled
+admatic@admatic-00:~/labels$ vi constraint_node.yaml
+admatic@admatic-00:~/labels$ cat constraint_node.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    disktype: ssd
+admatic@admatic-00:~/labels$ kubectl create -f constraint_node.yaml
+pod/nginx created
+admatic@admatic-00:~/labels$ kubectl get nodes
+NAME                                             STATUS   ROLES    AGE   VERSION
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   4h    v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   4h    v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   4h    v1.10.9-gke.5
+admatic@admatic-00:~/labels$ kubectl describe pod nginx
+Name:         nginx
+Namespace:    default
+Node:         gke-admatic-cluster-default-pool-8e1d0a98-8bdr/10.142.0.3
+Start Time:   Fri, 04 Jan 2019 10:25:08 +0000
+Labels:       env=test
+Annotations:  kubernetes.io/limit-ranger: LimitRanger plugin set: cpu request for container nginx
+Status:       Running
+IP:           10.16.1.13
+Containers:
+  nginx:
+    Container ID:   docker://a3aa65d6bb3cd20a56437ad441feb07f8086f7a793640d094386a0ca63573b55
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:e2847e35d4e0e2d459a7696538cbfea42ea2d3b8a1ee8329ba7e68694950afd3
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 04 Jan 2019 10:25:14 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v26xv (ro)
+Conditions:
+  Type           Status
+  Initialized    True
+  Ready          True
+  PodScheduled   True
+Volumes:
+  default-token-v26xv:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-v26xv
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  disktype=ssd
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason                 Age   From                                                     Message
+  ----    ------                 ----  ----                                                     -------
+  Normal  Scheduled              26s   default-scheduler                                        Successfully assigned nginx to gke-admatic-cluster-default-pool-8e1d0a98-8bdr
+  Normal  SuccessfulMountVolume  26s   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  MountVolume.SetUp succeeded for volume "default-token-v26xv"
+  Normal  Pulling                25s   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  pulling image "nginx"
+  Normal  Pulled                 20s   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Successfully pulled image "nginx"
+  Normal  Created                20s   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Created container
+  Normal  Started                20s   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Started container
+admatic@admatic-00:~/labels$ ls
+constraint_node.yaml  kubia-replicaset-matchexpressions.yaml  labels.yaml  rs1.yaml
+admatic@admatic-00:~/labels$
+apiVersion: v1
+apiVersion: v1
+admatic@admatic-00:~/labels$ vi constraint_node.yaml
+admatic@admatic-00:~/labels$ car constraint_node.yaml
+The program 'car' is currently not installed. You can install it by typing:
+sudo apt install ucommon-utils
+admatic@admatic-00:~/labels$ cat constraint_node.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    disktype: ssd
+    location: sg
+admatic@admatic-00:~/labels$ vi constraint_node.yaml
+admatic@admatic-00:~/labels$ cat constraint_node.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: xnginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    disktype: ssd
+    location: sg
+admatic@admatic-00:~/labels$ kubectl create -f constraint_node.yaml
+pod/xnginx created
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME     READY   STATUS    RESTARTS   AGE
+nginx    1/1     Running   0          2m
+xnginx   0/1     Pending   0          14s
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME     READY   STATUS    RESTARTS   AGE
+nginx    1/1     Running   0          2m
+xnginx   0/1     Pending   0          18s
+admatic@admatic-00:~/labels$ kubectl label nodes gke-admatic-cluster-default-pool-8e1d0a98-8bdr location=sg
+node/gke-admatic-cluster-default-pool-8e1d0a98-8bdr labeled
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME     READY   STATUS    RESTARTS   AGE
+nginx    1/1     Running   0          2m
+xnginx   0/1     Pending   0          58s
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME     READY   STATUS    RESTARTS   AGE
+nginx    1/1     Running   0          3m
+xnginx   0/1     Pending   0          1m
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME     READY   STATUS              RESTARTS   AGE
+nginx    1/1     Running             0          3m
+xnginx   0/1     ContainerCreating   0          1m
+admatic@admatic-00:~/labels$

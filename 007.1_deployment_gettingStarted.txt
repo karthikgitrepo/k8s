@@ -1,0 +1,130 @@
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl get pods
+No resources found.
+admatic@admatic-00:~/labels$ kubectl run nginx --image=nginx:1.12.0 --replicas=2 --port=80
+kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead.
+deployment.apps/nginx created
+admatic@admatic-00:~/labels$ kubectl get deployments
+NAME    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx   2         2         2            2           17s
+admatic@admatic-00:~/labels$ kubectl get po
+NAME                    READY   STATUS    RESTARTS   AGE
+nginx-8cdc99758-8kh6x   1/1     Running   0          28s
+nginx-8cdc99758-ztk77   1/1     Running   0          28s
+admatic@admatic-00:~/labels$ kubectl get rs
+NAME              DESIRED   CURRENT   READY   AGE
+nginx-8cdc99758   2         2         2       42s
+admatic@admatic-00:~/labels$ kubectl get svc
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.19.240.1   <none>        443/TCP   3m
+admatic@admatic-00:~/labels$ kubectl expose deployment nginx --port=80 --target-port=80
+service/nginx exposed
+admatic@admatic-00:~/labels$ kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.19.240.1     <none>        443/TCP   4m
+nginx        ClusterIP   10.19.252.253   <none>        80/TCP    15s
+admatic@admatic-00:~/labels$ ping 10.19.252.253
+PING 10.19.252.253 (10.19.252.253) 56(84) bytes of data.
+^C
+--- 10.19.252.253 ping statistics ---
+17 packets transmitted, 0 received, 100% packet loss, time 16370ms
+
+admatic@admatic-00:~/labels$ kubectl run kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1 --port=8080
+kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead.
+deployment.apps/kubernetes-bootcamp created
+admatic@admatic-00:~/labels$ kubectl get deployments
+NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+kubernetes-bootcamp   1         1         1            0           8s
+nginx                 2         2         2            2           7m
+admatic@admatic-00:~/labels$ kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+
+service/kubernetes-bootcamp exposed
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl get svc
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes            ClusterIP   10.19.240.1     <none>        443/TCP          10m
+kubernetes-bootcamp   NodePort    10.19.252.193   <none>        8080:32760/TCP   14s
+nginx                 ClusterIP   10.19.252.253   <none>        80/TCP           6m
+admatic@admatic-00:~/labels$ kubectl get nodes -o wide
+NAME                                             STATUS   ROLES    AGE   VERSION         EXTERNAL-IP      OS-IMAGE                             KERNEL-VERSION   CONTAINER-RUNTIME
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   6h    v1.10.9-gke.5   35.237.129.133   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   6h    v1.10.9-gke.5   35.231.60.94     Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   6h    v1.10.9-gke.5   35.243.202.122   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+admatic@admatic-00:~/labels$ kubectl describe services/kubernetes-bootcamp
+Name:                     kubernetes-bootcamp
+Namespace:                default
+Labels:                   run=kubernetes-bootcamp
+Annotations:              <none>
+Selector:                 run=kubernetes-bootcamp
+Type:                     NodePort
+IP:                       10.19.252.193
+Port:                     <unset>  8080/TCP
+TargetPort:               8080/TCP
+NodePort:                 <unset>  32760/TCP
+Endpoints:                10.16.0.33:8080
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+admatic@admatic-00:~/labels$ curl icanhazip.com
+
+35.244.11.45
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ kubectl get nodes -o wide
+NAME                                             STATUS   ROLES    AGE   VERSION         EXTERNAL-IP      OS-IMAGE                             KERNEL-VERSION   CONTAINER-RUNTIME
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   6h    v1.10.9-gke.5   35.237.129.133   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   6h    v1.10.9-gke.5   35.231.60.94     Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   6h    v1.10.9-gke.5   35.243.202.122   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+^C
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ kubectl scale deployments/kubernetes-bootcamp --replicas=4
+
+deployment.extensions/kubernetes-bootcamp scaled
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-vqt79 | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-m6bqw | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-vqt79 | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+^[[A
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-m6bqw | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+^[[A
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-vqt79 | v=1
+admatic@admatic-00:~/labels$ curl 35.237.129.133:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$ kubectl get nodes -o wide
+NAME                                             STATUS   ROLES    AGE   VERSION         EXTERNAL-IP      OS-IMAGE                             KERNEL-VERSION   CONTAINER-RUNTIME
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   6h    v1.10.9-gke.5   35.237.129.133   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   6h    v1.10.9-gke.5   35.231.60.94     Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   6h    v1.10.9-gke.5   35.243.202.122   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+admatic@admatic-00:~/labels$ curl 35.231.60.94:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-vqt79 | v=1
+admatic@admatic-00:~/labels$ curl 35.231.60.94:32760
+^[[AHello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-vqt79 | v=1
+admatic@admatic-00:~/labels$ curl 35.231.60.94:32760
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5c69669756-txndr | v=1
+admatic@admatic-00:~/labels$

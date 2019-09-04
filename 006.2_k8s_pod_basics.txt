@@ -1,0 +1,313 @@
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$ kubectl get nodes
+NAME                                             STATUS   ROLES    AGE   VERSION
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   41m   v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   41m   v1.10.9-gke.5
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   41m   v1.10.9-gke.5
+admatic@admatic-00:~$ kubectl get nodes -o wide
+NAME                                             STATUS   ROLES    AGE   VERSION         EXTERNAL-IP      OS-IMAGE                             KERNEL-VERSION   CONTAINER-RUNTIME
+gke-admatic-cluster-default-pool-8e1d0a98-3nkd   Ready    <none>   41m   v1.10.9-gke.5   35.237.129.133   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-8bdr   Ready    <none>   41m   v1.10.9-gke.5   35.231.60.94     Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+gke-admatic-cluster-default-pool-8e1d0a98-wk9j   Ready    <none>   41m   v1.10.9-gke.5   35.243.202.122   Container-Optimized OS from Google   4.14.65+         docker://17.3.2
+admatic@admatic-00:~$
+admatic@admatic-00:~$ kubectl get pods
+No resources found.
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$ cat 3-2-1_pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+  - name: web
+    image: nginx
+  - name: centos
+    image: centos
+    command: ["/bin/sh", "-c", "while : ;do curl http://localhost:80/; sleep 10; done"]
+admatic@admatic-00:~$
+admatic@admatic-00:~$ cat 3-2-1_pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+  - name: web
+    image: nginx
+  - name: centos
+    image: centos
+    command: ["/bin/sh", "-c", "while : ;do curl http://localhost:80/; sleep 10; done"]
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+admatic@admatic-00:~$
+apiVersion: v1
+apiVersion: v1
+admatic@admatic-00:~$
+admatic@admatic-00:~$ vi simplepod.yaml
+admatic@admatic-00:~$ cat simplepod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: admaticdemo
+spec:
+  containers:
+  - name: web
+    image: nginx
+admatic@admatic-00:~$ kubectl get pods
+No resources found.
+admatic@admatic-00:~$ kubectl create -f simplepod.yaml
+pod/admaticdemo created
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS    RESTARTS   AGE
+admaticdemo   1/1     Running   0          7s
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS    RESTARTS   AGE
+admaticdemo   1/1     Running   0          12s
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS    RESTARTS   AGE
+admaticdemo   1/1     Running   0          1m
+admatic@admatic-00:~$ vi pod2.yaml
+admatic@admatic-00:~$ cat pod2.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: admaticcos
+spec:
+  containers:
+  - name: web
+    image: nginx
+  - name: centos
+    image: centos
+    command: ["/bin/sh", "-c", "while : ;do curl http://localhost:80/; sleep 10; done"]
+admatic@admatic-00:~$
+admatic@admatic-00:~$ kubectl create  -f pod2.yaml
+
+pod/admaticcos created
+admatic@admatic-00:~$
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+admaticcos    0/2     ContainerCreating   0          9s
+admaticdemo   1/1     Running             0          3m
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+admaticcos    0/2     ContainerCreating   0          15s
+admaticdemo   1/1     Running             0          3m
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS    RESTARTS   AGE
+admaticcos    2/2     Running   0          18s
+admaticdemo   1/1     Running   0          3m
+admatic@admatic-00:~$ kubectl explain pods
+KIND:     Pod
+VERSION:  v1
+
+DESCRIPTION:
+     Pod is a collection of containers that can run on a host. This resource is
+     created by clients and scheduled onto hosts.
+
+FIELDS:
+   apiVersion	<string>
+     APIVersion defines the versioned schema of this representation of an
+     object. Servers should convert recognized schemas to the latest internal
+     value, and may reject unrecognized values. More info:
+     https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+
+   kind	<string>
+     Kind is a string value representing the REST resource this object
+     represents. Servers may infer this from the endpoint the client submits
+     requests to. Cannot be updated. In CamelCase. More info:
+     https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+
+   metadata	<Object>
+     Standard object's metadata. More info:
+     https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+
+   spec	<Object>
+     Specification of the desired behavior of the pod. More info:
+     https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+
+   status	<Object>
+     Most recently observed status of the pod. This data may not be up to date.
+     Populated by the system. Read-only. More info:
+     https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+
+admatic@admatic-00:~$ kubectl describe pod admaticcos
+Name:         admaticcos
+Namespace:    default
+Node:         gke-admatic-cluster-default-pool-8e1d0a98-3nkd/10.142.0.2
+Start Time:   Fri, 04 Jan 2019 06:38:20 +0000
+Labels:       <none>
+Annotations:  kubernetes.io/limit-ranger: LimitRanger plugin set: cpu request for container web; cpu request for container centos
+Status:       Running
+IP:           10.16.2.6
+Containers:
+  web:
+    Container ID:   docker://cf6d83bf894e3c37ffeea8c27b8afe3447ab8aaa8a4d595c8de92760a3ea4272
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:e2847e35d4e0e2d459a7696538cbfea42ea2d3b8a1ee8329ba7e68694950afd3
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 04 Jan 2019 06:38:26 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v26xv (ro)
+  centos:
+    Container ID:  docker://bb8d31513ec38249a2a0c806994c3d06790f6109fc20fe67729f110da935c061
+    Image:         centos
+    Image ID:      docker-pullable://centos@sha256:365fc7f33107869dfcf2b3ba220ce0aa42e16d3f8e8b3c21d72af1ee622f0cf0
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -c
+      while : ;do curl http://localhost:80/; sleep 10; done
+    State:          Running
+      Started:      Fri, 04 Jan 2019 06:38:36 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Environment:  <none>
+apiVersion: v1
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v26xv (ro)
+Conditions:
+  Type           Status
+  Initialized    True
+  Ready          True
+  PodScheduled   True
+Volumes:
+  default-token-v26xv:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-v26xv
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason                 Age    From                                                     Message
+  ----    ------                 ----   ----                                                     -------
+  Normal  Scheduled              2m45s  default-scheduler                                        Successfully assigned admaticcos to gke-admatic-cluster-default-pool-8e1d0a98-3nkd
+  Normal  SuccessfulMountVolume  2m45s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  MountVolume.SetUp succeeded for volume "default-token-v26xv"
+  Normal  Pulling                2m44s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  pulling image "nginx"
+  Normal  Pulled                 2m40s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  Successfully pulled image "nginx"
+  Normal  Created                2m39s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  Created container
+  Normal  Started                2m39s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  Started container
+  Normal  Pulling                2m39s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  pulling image "centos"
+  Normal  Pulled                 2m32s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  Successfully pulled image "centos"
+  Normal  Created                2m29s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  Created container
+  Normal  Started                2m29s  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-3nkd  Started container
+admatic@admatic-00:~$ vi thirdpod.yaml
+admatic@admatic-00:~$ cat thirdpod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: admatictemp
+spec:
+  containers:
+  - name: web
+    image: nginx:v2xx
+  - name: centos
+    image: centos
+    command: ["/bin/sh", "-c", "while : ;do curl http://localhost:80/; sleep 10; done"]
+admatic@admatic-00:~$ kubectl create -f thirdpod.yaml
+pod/admatictemp created
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+admaticcos    2/2     Running             0          8m
+admaticdemo   1/1     Running             0          12m
+admatictemp   0/2     ContainerCreating   0          8s
+admatic@admatic-00:~$ kubectl get pods
+NAME          READY   STATUS         RESTARTS   AGE
+admaticcos    2/2     Running        0          8m
+admaticdemo   1/1     Running        0          12m
+admatictemp   1/2     ErrImagePull   0          18s
+admatic@admatic-00:~$ kubectl describe admatictemp
+^C
+admatic@admatic-00:~$ kubectl describe pod admatictemp
+Name:         admatictemp
+Namespace:    default
+Node:         gke-admatic-cluster-default-pool-8e1d0a98-8bdr/10.142.0.3
+Start Time:   Fri, 04 Jan 2019 06:46:37 +0000
+Labels:       <none>
+Annotations:  kubernetes.io/limit-ranger: LimitRanger plugin set: cpu request for container web; cpu request for container centos
+Status:       Pending
+IP:           10.16.1.7
+Containers:
+  web:
+    Container ID:
+    Image:          nginx:v2xx
+    Image ID:
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v26xv (ro)
+  centos:
+    Container ID:  docker://011094008cd0da0a510ad2b2dc9204107131728bc8a35d1cd0ed6b383b0f7832
+    Image:         centos
+    Image ID:      docker-pullable://centos@sha256:365fc7f33107869dfcf2b3ba220ce0aa42e16d3f8e8b3c21d72af1ee622f0cf0
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -c
+      while : ;do curl http://localhost:80/; sleep 10; done
+    State:          Running
+      Started:      Fri, 04 Jan 2019 06:46:49 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v26xv (ro)
+Conditions:
+  Type           Status
+  Initialized    True
+  Ready          False
+  PodScheduled   True
+Volumes:
+  default-token-v26xv:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-v26xv
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type     Reason                 Age                From                                                     Message
+  ----     ------                 ----               ----                                                     -------
+  Normal   Scheduled              36s                default-scheduler                                        Successfully assigned admatictemp to gke-admatic-cluster-default-pool-8e1d0a98-8bdr
+  Normal   SuccessfulMountVolume  35s                kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  MountVolume.SetUp succeeded for volume "default-token-v26xv"
+  Normal   Pulling                34s                kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  pulling image "centos"
+  Normal   Pulled                 27s                kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Successfully pulled image "centos"
+  Normal   Started                24s                kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Started container
+  Normal   Created                24s                kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Created container
+  Normal   Pulling                23s (x2 over 35s)  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  pulling image "nginx:v2xx"
+  Warning  Failed                 22s (x2 over 34s)  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Failed to pull image "nginx:v2xx": rpc error: code = Unknown desc = Error response from daemon: manifest for nginx:v2xx not found
+  Warning  Failed                 22s (x2 over 34s)  kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Error: ErrImagePull
+  Normal   BackOff                8s (x2 over 21s)   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Back-off pulling image "nginx:v2xx"
+  Warning  Failed                 8s (x2 over 21s)   kubelet, gke-admatic-cluster-default-pool-8e1d0a98-8bdr  Error: ImagePullBackOff
+admatic@admatic-00:~$
+
+

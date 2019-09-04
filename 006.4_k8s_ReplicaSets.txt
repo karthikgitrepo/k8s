@@ -1,0 +1,124 @@
+cat kubia-replicaset.yaml
+apiVersion: apps/v1beta2
+kind: ReplicaSet
+metadata:
+  name: kubia
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - name: kubia
+        image: luksa/kubia
+
+
+
+
+
+
+
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          3h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Terminating        0          2h
+kubia-ck4gv     1/1     Terminating        0          2h
+kubia-z94zx     1/1     Terminating        0          2h
+labelex         1/1     Running            0          6m
+nginxrc-vvcwq   1/1     Running            0          30m
+rakuten-nginx   1/1     Running            0          38m
+admatic@admatic-00:~/labels$
+apiVersion: apps/v1beta2
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          3h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-b7b8v     1/1     Terminating        0          2h
+kubia-ck4gv     1/1     Terminating        0          2h
+kubia-z94zx     1/1     Terminating        0          2h
+labelex         1/1     Running            0          6m
+nginxrc-vvcwq   1/1     Running            0          30m
+rakuten-nginx   1/1     Running            0          38m
+admatic@admatic-00:~/labels$ vi rs1.yaml
+admatic@admatic-00:~/labels$ cat rs1.yaml
+apiVersion: apps/v1beta2
+kind: ReplicaSet
+metadata:
+  name: kubia
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - name: kubia
+        image: luksa/kubia
+admatic@admatic-00:~/labels$ kubectl create -f rs1.yaml
+replicaset.apps/kubia created
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          3h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-4zwgh     1/1     Running            0          9s
+kubia-7vkb5     1/1     Running            0          9s
+kubia-gr4hq     1/1     Running            0          9s
+kubia-knzmn     1/1     Running            0          9s
+kubia-rvwz8     1/1     Running            0          9s
+kubia-w8sxp     1/1     Running            0          9s
+labelex         1/1     Running            0          7m
+nginxrc-vvcwq   1/1     Running            0          31m
+rakuten-nginx   1/1     Running            0          39m
+admatic@admatic-00:~/labels$
+admatic@admatic-00:~/labels$ cat << EOF > kubia-replicaset-matchexpressions.yaml
+> apiVersion: apps/v1beta2
+> kind: ReplicaSet
+> metadata:
+>   name: kubia
+> spec:
+>   replicas: 3
+>   selector:
+>     matchExpressions:
+>       - key: app
+>         operator: In
+>         values:
+>          - kubia
+>   template:
+>     metadata:
+>       labels:
+>         app: kubia
+>     spec:
+>       containers:
+>       - name: kubia
+>         image: luksa/kubia
+> EOF
+admatic@admatic-00:~/labels$ kubectl delete rs kubia
+replicaset.extensions "kubia" deleted
+admatic@admatic-00:~/labels$ kubectl get pods
+NAME            READY   STATUS             RESTARTS   AGE
+admaticcos      2/2     Running            0          3h
+admatictemp     1/2     ImagePullBackOff   0          2h
+kubia-4zwgh     1/1     Terminating        0          52s
+kubia-7vkb5     1/1     Terminating        0          52s
+kubia-gr4hq     1/1     Terminating        0          52s
+kubia-knzmn     1/1     Terminating        0          52s
+kubia-rvwz8     1/1     Terminating        0          52s
+kubia-w8sxp     1/1     Terminating        0          52s
+labelex         1/1     Running            0          8m
+nginxrc-vvcwq   1/1     Running            0          32m
+rakuten-nginx   1/1     Running            0          40m
+admatic@admatic-00:~/labels$ kubectl create -f kubia-replicaset-matchexpressions.yaml
+replicaset.apps/kubia created
+admatic@admatic-00:~/labels$
+
+
